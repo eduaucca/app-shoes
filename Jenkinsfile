@@ -67,7 +67,7 @@ pipeline {
                         sh "az aks get-credentials --resource-group rg-shoes-dev --name aks-shoes-cluster"
                         
                         // 3. Desplegamos la aplicación con Helm
-                        sh "helm upgrade --install app-shoes ./mi-chart --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG}"
+                        sh "helm upgrade --install app-shoes . --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG}"
                     }
                 }
             }
