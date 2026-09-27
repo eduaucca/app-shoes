@@ -40,11 +40,18 @@ pipeline {
             }
         }
         
-        stage('Actualizar Infraestructura (Terraform)') {
+       stage('Actualizar Infraestructura (Terraform)') {
             steps {
                 dir('terraform') {
-                    sh 'terraform init'
-                    sh 'terraform apply -auto-approve'
+                    withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'ARM_CLIENT_SECRET', usernameVariable: 'ARM_CLIENT_ID')]) {
+                        withEnv([
+                            "ARM_TENANT_ID=3f83c7e1-a93e-45f3-83e5-1848086ae31f", 
+                            "ARM_SUBSCRIPTION_ID=1a4b81c6-bca5-4df9-8ec9-19efa91fa5f0"
+                        ]) {
+                            sh 'terraform init'
+                            sh 'terraform apply -auto-approve'
+                        }
+                    }
                 }
             }
         }
