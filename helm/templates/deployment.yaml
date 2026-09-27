@@ -18,7 +18,14 @@ spec:
       - name: servidor-web
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         ports:
-        - containerPort: {{ .Values.puerto }} 
+        - containerPort: {{ .Values.puerto }}
+        env:
+        - name: AZURE_TENANT_ID
+          value: {{ .Values.azure.tenantId | quote }}
+        - name: AZURE_CLIENT_ID
+          value: {{ .Values.azure.clientId | quote }}
+        - name: AZURE_CLIENT_SECRET
+          value: {{ .Values.azure.clientSecret | quote }}
         resources:
           limits:
             cpu: {{ .Values.cpuLimit }}

@@ -60,14 +60,11 @@ pipeline {
             steps {
                 dir('helm') {
                     withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'AZ_PASS', usernameVariable: 'AZ_USER')]) {
-                        // 1. Nos logueamos en Azure
                         sh "az login --service-principal -u \$AZ_USER -p \$AZ_PASS --tenant 3f83c7e1-a93e-45f3-83e5-1848086ae31f"
-                        
-                        // 2. Descargamos las credenciales del clúster (el archivo kubeconfig)
                         sh "az aks get-credentials --resource-group rg-shoes-dev --name aks-shoes-cluster"
                         
-                        // 3. Desplegamos la aplicación con Helm
-                        sh "helm upgrade --install app-shoes . --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG}"
+                        // Aquí es donde va la nueva línea que inyecta las credenciales a Helm:
+                        sh "helm upgrade --install app-shoes . --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --set azure.clientId=\$AZ_USER --set azure.clientSecret=\$AZ_PASS --set azure.tenantId=3f83c7e1-a93e-45f3-83e5-1848086ae31f"
                     }
                 }
             }
