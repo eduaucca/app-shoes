@@ -16,7 +16,7 @@ spec:
       serviceAccountName: shoes-sa #Vincula el Pod con la identidad
       containers:
       - name: servidor-web
-        image: {{ .Values.image }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         ports:
         - containerPort: {{ .Values.puerto }} 
         resources:
