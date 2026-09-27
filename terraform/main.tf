@@ -16,7 +16,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   default_node_pool {
     name       = "default"
     node_count = 1
-    vm_size    = "Standard_D2s_v7" # Tamaño de máquina virtual básico
+    vm_size    = "Standard_D2s_v7" # Tamaño de maquina virtual basico
   }
 
   identity {
@@ -28,4 +28,21 @@ resource "azurerm_kubernetes_cluster" "aks" {
     Project     = "App Shoes"
     ManagedBy   = "Terraform"
   }
+}
+
+# Registro de contenedores privado
+resource "azurerm_container_registry" "acr" {
+  name                = "acrshoesedu2026" 
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  sku                 = "Basic"
+  admin_enabled       = false # Buenas prácticas: acceso solo mediante identidades, sin contraseñas de admin
+}
+
+# Permiso para que AKS pueda descargar imagenes del ACR sin credenciales estáticas
+resource "azurerm_role_assignment" "aks_acr_pull" {
+  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
+  role_definition_name             = "AcrPull"
+  scope                            = azurerm_container_registry.acr.id
+  skip_service_principal_aad_check = true
 }
