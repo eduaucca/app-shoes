@@ -7,6 +7,7 @@ metadata:
     prometheus.io/port: "{{ .Values.puerto }}"
     prometheus.io/path: "/metrics"
 spec:
+  type: LoadBalancer
   selector:
     # IMPORTANTE: Esta etiqueta debe coincidir con la que pusiste en tu deployment
     app: {{ .Release.Name }}-web
