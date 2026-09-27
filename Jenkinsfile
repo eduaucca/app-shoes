@@ -47,5 +47,16 @@ pipeline {
                 }
             }
         }
-    }
+
+        stage('Autenticación en Azure y ACR') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'AZ_PASS', usernameVariable: 'AZ_USER')]) {
+                    // Login en Azure con el Service Principal
+                    sh "az login --service-principal -u \$AZ_USER -p \$AZ_PASS --tenant TU_TENANT_ID"
+                    // Login específico en el Container Registry
+                    sh "az acr login --name ${ACR_NAME}"
+                }
+            }
+        
+        }
 }
