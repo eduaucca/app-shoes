@@ -25,6 +25,23 @@ pipeline {
                 }
             }
         }
+
+        stage('Análisis de Código (SonarQube)') {
+            steps {
+                script {
+                    // Llama a la herramienta configurada en SonarQube Tools
+                    def scannerHome = tool 'sonar-scanner'
+            
+                    // Llama al servidor que acabas de guardar
+                    withSonarQubeEnv('sonar-server') {
+                    sh "${scannerHome}/bin/sonar-scanner \
+                      -Dsonar.projectKey=app-shoes \
+                      -Dsonar.projectName='App Shoes' \
+                      -Dsonar.sources=."
+            }
+        }
+    }
+}
         
         stage('Construir Imagen Docker') {
             steps {
