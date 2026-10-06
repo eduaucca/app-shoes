@@ -1,5 +1,9 @@
 pipeline {
-    agent any 
+    agent {
+        node {
+            label 'built-in'
+        }
+    } 
 
     environment {
         // Variables para tu Azure Container Registry
