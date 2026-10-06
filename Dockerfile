@@ -1,7 +1,14 @@
 FROM node:22-alpine
+
 WORKDIR /app
-COPY package.json ./
-RUN npm install
-COPY index.js ./
+
+# Dependencias
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Código fuente
+COPY src/ ./src/
+
 EXPOSE 3000
-CMD ["node", "index.js"]
+
+CMD ["node", "src/index.js"]
