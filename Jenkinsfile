@@ -13,7 +13,7 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+       stage('Checkout') {
             steps {
                 checkout scm
             }
@@ -37,7 +37,7 @@ pipeline {
             }
         } 
         
-      stage('Autenticación en Azure') {
+       stage('Autenticación en Azure') {
         steps {
             withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'AZ_PASS', usernameVariable: 'AZ_USER')]) {
                 // Mantenemos el login para que la CLI de Azure tenga permisos
@@ -46,7 +46,7 @@ pipeline {
         }
     }
 
-    stage('Construir y Subir en la Nube (ACR Tasks)') {
+       stage('Construir y Subir en la Nube (ACR Tasks)') {
         steps {
             // Este comando compila en los servidores de Azure y sube la imagen directamente a tu ACR sin usar docker.sock
             sh "az acr build --registry acrshoesedu2026 --image app-shoes:${IMAGE_TAG} --image app-shoes:latest ."
@@ -69,7 +69,7 @@ pipeline {
             }
         }
         
-       stage('Desplegar en AKS (Helm)') {
+        stage('Desplegar en AKS (Helm)') {
             steps {
                 dir('helm') {
                     withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'AZ_PASS', usernameVariable: 'AZ_USER')]) {
@@ -81,6 +81,7 @@ pipeline {
                     }
                 }
             }
-        }
-    }
+         }
+      }
+   }
 
