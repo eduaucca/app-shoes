@@ -37,31 +37,22 @@ pipeline {
             }
         } 
         
-        stage('Autenticación en Azure y ACR') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'AZ_PASS', usernameVariable: 'AZ_USER')]) {
-                    // Login en Azure con el Service Principal
-                    sh "az login --service-principal -u \$AZ_USER -p \$AZ_PASS --tenant 3f83c7e1-a93e-45f3-83e5-1848086ae31f"
-                    // Login específico en el Container Registry
-                    sh "az acr login --name ${ACR_NAME}"
-                }
+      stage('Autenticación en Azure') {
+        steps {
+            withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'AZ_PASS', usernameVariable: 'AZ_USER')]) {
+                // Mantenemos el login para que la CLI de Azure tenga permisos
+                sh "az login --service-principal -u \$AZ_USER -p \$AZ_PASS --tenant 3f83c7e1-a93e-45f3-83e5-1848086ae31f"
             }
         }
-        
-        stage('Construir Imagen Docker') {
-            steps {
-                // Ejecutado en la raíz donde está el Dockerfile
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:latest ."
-            }
+    }
+
+    stage('Construir y Subir en la Nube (ACR Tasks)') {
+        steps {
+            // Este comando compila en los servidores de Azure y sube la imagen directamente a tu ACR sin usar docker.sock
+            sh "az acr build --registry acrshoesedu2026 --image app-shoes:${IMAGE_TAG} --image app-shoes:latest ."
         }
-        
-        stage('Subir a Azure Container Registry') {
-            steps {
-                sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-                sh "docker push ${IMAGE_NAME}:latest"
-            }
-        }
-        
+    }
+ 
        stage('Actualizar Infraestructura (Terraform)') {
             steps {
                 dir('terraform') {
@@ -92,4 +83,4 @@ pipeline {
             }
         }
     }
-}
+
