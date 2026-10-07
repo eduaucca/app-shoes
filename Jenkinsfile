@@ -36,14 +36,15 @@ pipeline {
                 }
             }
         } 
-        
+
         stage('Autenticación en Azure y ACR') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'AZ_PASS', usernameVariable: 'AZ_USER')]) {
-                    // Login en Azure con el Service Principal
+                    // Login en Azure CLI (necesario para los comandos de AKS posteriores)
                     sh "az login --service-principal -u \$AZ_USER -p \$AZ_PASS --tenant 3f83c7e1-a93e-45f3-83e5-1848086ae31f"
-                    // Login específico en el Container Registry para que Docker pueda hacer push
-                    sh "az acr login --name ${ACR_NAME}"
+                    
+                    // Login directo a Docker sin depender del socket en la CLI de Azure
+                    sh "echo \$AZ_PASS | docker login acrshoesedu2026.azurecr.io -u \$AZ_USER --password-stdin"
                 }
             }
         }
