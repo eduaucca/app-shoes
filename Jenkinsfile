@@ -51,11 +51,22 @@ pipeline {
 
         stage('Construir Imagen Docker') {
             steps {
-                // Gracias al sidecar de DinD, esto se compila localmente dentro del pod de Jenkins
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:latest ."
-            }
+                script {
+            // Esperar a que el demonio de DinD esté completamente listo y el socket disponible
+                    sh '''
+                        echo "Esperando a que el socket de Docker esté disponible..."
+                        until docker info > /dev/null 2>&1; do
+                            sleep 2
+                        done
+                        echo "¡Docker daemon listo y operativo!"
+                    '''
+            
+            // Ejecutar la construcción de la imagen
+                    sh "docker build -t acrshoesedu2026.azurecr.io/app-shoes:${env.BUILD_NUMBER} -t acrshoesedu2026.azurecr.io/app-shoes:latest ."
         }
-
+    }
+}
+       
         stage('Subir a Azure Container Registry') {
             steps {
                 sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
