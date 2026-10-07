@@ -29,7 +29,8 @@ pipeline {
                           -Dsonar.projectKey=app-shoes \
                           -Dsonar.projectName='App Shoes' \
                           -Dsonar.sources=. \
-                          -Dsonar.exclusions=**/node_modules/**"""
+                          -Dsonar.exclusions=**/node_modules/** \
+                          -Dsonar.token=\$SONAR_AUTH_TOKEN"""
                     }
                 }
             }
