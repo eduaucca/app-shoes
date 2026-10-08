@@ -76,24 +76,25 @@ pipeline {
 
         stage('Desplegar en AKS (Helm)') {
             steps {
-                container('helm') {
+            
                   dir('helm') {
                     withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'AZ_PASS', usernameVariable: 'AZ_USER')]) {
-                        // Descarga e instala helm
-                        sh "curl -sL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash"
-
+                        
+                        container('azure-cli') {
                         // Logea en Azure
                         sh "az login --service-principal -u \$AZ_USER -p \$AZ_PASS --tenant 3f83c7e1-a93e-45f3-83e5-1848086ae31f"
 
                         // Obtiene las cedenciales del cluster AKS
                         sh "az aks get-credentials --resource-group rg-shoes-dev --name aks-shoes-cluster"
+                        }
+                        container('helm') {
+                            sh "export KUBECONFIG=kubeconfig_aks && helm upgrade --install app-shoes . --set image.repository=\${IMAGE_NAME} --set image.tag=\${IMAGE_TAG} --set azure.clientId=\\$AZ_USER --set azure.clientSecret=\\$AZ_PASS --set azure.tenantId=3f83c7e1-a93e-45f3-83e5-1848086ae31f"
+                        }
                         
-                        // Inyecta las credenciales a Helm:
-                        sh "helm upgrade --install app-shoes . --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --set azure.clientId=\$AZ_USER --set azure.clientSecret=\$AZ_PASS --set azure.tenantId=3f83c7e1-a93e-45f3-83e5-1848086ae31f"
-                    }
+                   }
                 }
             }
          }
       }
    }
-}
+

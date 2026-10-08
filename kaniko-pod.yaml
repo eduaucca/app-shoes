@@ -11,18 +11,28 @@ spec:
     volumeMounts:
     - name: docker-config
       mountPath: /kaniko/.docker/
+  
   - name: terraform
     image: hashicorp/terraform:1.5.0
     command:
     - sleep
     args:
     - 9999999
-  - name: helm
+  
+  - name: azure-cli
     image: mcr.microsoft.com/azure-cli:latest
     command:
     - sleep
     args:
     - 9999999
+  
+  - name: helm
+    image: alpine/helm:3.12.0
+    command:
+    - sleep
+    args:
+    - 9999999
+  
   volumes:
   - name: docker-config
     secret:
