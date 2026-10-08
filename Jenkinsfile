@@ -44,7 +44,7 @@ pipeline {
                    /kaniko/executor \
                      --context $(pwd) \
                      --dockerfile $(pwd)/Dockerfile \
-                     --destination acrshoesedu2026.azurecr.io/app-shoes:${env.BUILD_NUMBER} \
+                     --destination acrshoesedu2026.azurecr.io/app-shoes:${BUILD_NUMBER} \
                      --destination acrshoesedu2026.azurecr.io/app-shoes:latest
                    '''
         }
