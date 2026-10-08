@@ -54,7 +54,11 @@ pipeline {
        stage('Actualizar Infraestructura (Terraform)') {
             steps {
                 container('terraform') {
-                    dir('terraform') {
+                   dir('repo-infra') {
+
+                     git branch: 'main', url: 'https://github.com/eduaucca/app-shoes-infra.git'
+
+                     dir('terraform') {
                       withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'ARM_CLIENT_SECRET', usernameVariable: 'ARM_CLIENT_ID')]) {
                         withEnv([
                             "ARM_TENANT_ID=3f83c7e1-a93e-45f3-83e5-1848086ae31f", 
@@ -68,6 +72,7 @@ pipeline {
             }
         }
     }        
+}
 
         stage('Desplegar en AKS (Helm)') {
             steps {
