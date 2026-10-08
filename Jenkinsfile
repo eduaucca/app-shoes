@@ -54,7 +54,8 @@ pipeline {
        stage('Actualizar Infraestructura (Terraform)') {
             steps {
                 dir('terraform') {
-                    withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'ARM_CLIENT_SECRET', usernameVariable: 'ARM_CLIENT_ID')]) {
+                    container('terraform') {
+                      withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'ARM_CLIENT_SECRET', usernameVariable: 'ARM_CLIENT_ID')]) {
                         withEnv([
                             "ARM_TENANT_ID=3f83c7e1-a93e-45f3-83e5-1848086ae31f", 
                             "ARM_SUBSCRIPTION_ID=1a4b81c6-bca5-4df9-8ec9-19efa91fa5f0"
@@ -66,15 +67,23 @@ pipeline {
                 }
             }
         }
-        
+    }        
+
         stage('Desplegar en AKS (Helm)') {
             steps {
                 dir('helm') {
+                  container('helm') {
                     withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'AZ_PASS', usernameVariable: 'AZ_USER')]) {
+                        // Descarga e instala helm
+                        sh "curl -sL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash"
+
+                        // Logea en Azure
                         sh "az login --service-principal -u \$AZ_USER -p \$AZ_PASS --tenant 3f83c7e1-a93e-45f3-83e5-1848086ae31f"
+
+                        // Obtiene las cedenciales del cluster AKS
                         sh "az aks get-credentials --resource-group rg-shoes-dev --name aks-shoes-cluster"
                         
-                        // Aquí es donde va la nueva línea que inyecta las credenciales a Helm:
+                        // Inyecta las credenciales a Helm:
                         sh "helm upgrade --install app-shoes . --set image.repository=${IMAGE_NAME} --set image.tag=${IMAGE_TAG} --set azure.clientId=\$AZ_USER --set azure.clientSecret=\$AZ_PASS --set azure.tenantId=3f83c7e1-a93e-45f3-83e5-1848086ae31f"
                     }
                 }
@@ -82,4 +91,4 @@ pipeline {
          }
       }
    }
-
+}
