@@ -1,7 +1,7 @@
 pipeline {
     agent {
-        node {
-            label 'built-in'
+        kubernetes {
+            yamlFile 'kaniko-pod.yaml'
         }
     } 
 
@@ -37,43 +37,20 @@ pipeline {
             }
         } 
 
-        stage('Autenticación en Azure y ACR') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'azure-sp', passwordVariable: 'AZ_PASS', usernameVariable: 'AZ_USER')]) {
-                    // Login en Azure CLI (necesario para los comandos de AKS posteriores)
-                    sh "az login --service-principal -u \$AZ_USER -p \$AZ_PASS --tenant 3f83c7e1-a93e-45f3-83e5-1848086ae31f"
-                    
-                    // Login directo a Docker sin depender del socket en la CLI de Azure
-                    sh "echo \$AZ_PASS | docker login acrshoesedu2026.azurecr.io -u \$AZ_USER --password-stdin"
-                }
-            }
-        }
-
-        stage('Construir Imagen Docker') {
-            steps {
-                script {
-            // Esperar a que el demonio de DinD esté completamente listo y el socket disponible
-                    sh '''
-                        echo "Esperando a que el socket de Docker esté disponible..."
-                        until docker info > /dev/null 2>&1; do
-                            sleep 2
-                        done
-                        echo "¡Docker daemon listo y operativo!"
-                    '''
-            
-            // Ejecutar la construcción de la imagen
-                    sh "docker build -t acrshoesedu2026.azurecr.io/app-shoes:${env.BUILD_NUMBER} -t acrshoesedu2026.azurecr.io/app-shoes:latest ."
+       stage('Construir y Subir con Kaniko') {
+           steps {
+               container('kaniko') {
+                   sh '''
+                   /kaniko/executor \
+                     --context $(pwd) \
+                     --dockerfile $(pwd)/Dockerfile \
+                     --destination acrshoesedu2026.azurecr.io/app-shoes:${env.BUILD_NUMBER} \
+                     --destination acrshoesedu2026.azurecr.io/app-shoes:latest
+                   '''
         }
     }
 }
        
-        stage('Subir a Azure Container Registry') {
-            steps {
-                sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-                sh "docker push ${IMAGE_NAME}:latest"
-            }
-        }
-        
        stage('Actualizar Infraestructura (Terraform)') {
             steps {
                 dir('terraform') {
