@@ -68,6 +68,7 @@ pipeline {
                             "ARM_SUBSCRIPTION_ID=1a4b81c6-bca5-4df9-8ec9-19efa91fa5f0"
                         ]) {
                             sh 'terraform init'
+                            sh 'terraform force-unlock -force f32803ac-ce2f-8888-22bf-3903ee06b120'
                             sh 'terraform apply -auto-approve'
                         }
                     }
