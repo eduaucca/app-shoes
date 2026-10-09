@@ -40,6 +40,9 @@ pipeline {
        stage('Construir y Subir con Kaniko') {
            steps {
                container('kaniko') {
+                   // Líneas de diagnóstico nuevas
+                   sh 'ls -la /kaniko/.docker/ || echo "Error: La carpeta no existe"'
+                   sh 'ls -la /kaniko/.docker/config.json || echo "Error: El archivo config.json NO está"'
                    sh '''
                    /kaniko/executor \
                      --context $(pwd) \
