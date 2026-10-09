@@ -85,13 +85,13 @@ pipeline {
                         
                         container('azure-cli') {
                         // Logea en Azure
-                        sh "az login --service-principal -u \$AZ_USER -p \$AZ_PASS --tenant 3f83c7e1-a93e-45f3-83e5-1848086ae31f"
+                        sh 'az login --service-principal -u \$AZ_USER -p \$AZ_PASS --tenant 3f83c7e1-a93e-45f3-83e5-1848086ae31f'
 
                         // Obtiene las cedenciales del cluster AKS
-                        sh "az aks get-credentials --resource-group rg-shoes-dev --name aks-shoes-cluster"
+                        sh 'az aks get-credentials --resource-group rg-shoes-dev --name aks-shoes-cluster --file kubeconfig_aks'
                         }
                         container('helm') {
-                            sh "export KUBECONFIG=kubeconfig_aks && helm upgrade --install app-shoes . --set image.repository=\${IMAGE_NAME} --set image.tag=\${IMAGE_TAG} --set azure.clientId=\\$AZ_USER --set azure.clientSecret=\\$AZ_PASS --set azure.tenantId=3f83c7e1-a93e-45f3-83e5-1848086ae31f"
+                            sh 'export KUBECONFIG=kubeconfig_aks && helm upgrade --install app-shoes . --set image.repository=\${IMAGE_NAME} --set image.tag=\${IMAGE_TAG} --set azure.clientId=\\$AZ_USER --set azure.clientSecret=\\$AZ_PASS --set azure.tenantId=3f83c7e1-a93e-45f3-83e5-1848086ae31f'
                         }
                         
                    }
