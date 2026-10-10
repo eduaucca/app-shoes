@@ -2,7 +2,7 @@
 
 A personal project focused on software development, containerization, and continuous deployment in Kubernetes following a Zero Trust architecture.
 
-This repository contains exclusively the source code of the web application, its Docker containerization, Helm charts, and the automation pipeline. The core infrastructure provisioning on Azure is managed independently in the [app-shoes-infra](https://github.com/tu-usuario/app-shoes-infra) repository.
+This repository contains exclusively the source code of the web application, its Docker containerization, Helm charts, and the automation pipeline. The core infrastructure provisioning on Azure is managed independently in the [app-shoes-infra](https://github.com/eduaucca/app-shoes-infra) repository.
 
 ## Tech Stack
 
