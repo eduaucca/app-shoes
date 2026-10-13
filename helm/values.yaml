@@ -1,9 +1,12 @@
+fullnameOverride: "servicio-shoes"
 replicaCount: 2
 image: eduaucca/app-shoes:v3
 cpuLimit: "100m"
 memoryLimit: "128Mi"
 puerto: 3000
 service:
-  type: LoadBalancer
-  port: 80
+  type: ClusterIP
+  port: 3000
   targetPort: 3000
+ingress:
+  host: "app-shoes.local"
